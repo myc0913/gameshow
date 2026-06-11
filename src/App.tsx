@@ -1,5 +1,7 @@
+import { PlayPage } from './pages/PlayPage';
+
 function App() {
-  return <div>Hello World</div>;
+  return <PlayPage />;
 }
 
 export default App;
