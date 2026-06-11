@@ -13,11 +13,15 @@
  */
 
 import { readFileSync, readdirSync, existsSync } from "fs";
-import { join } from "path";
+import { join, dirname } from "path";
+import { fileURLToPath } from "url";
 
 // ---------------------------------------------------------------------------
 // Helpers
 // ---------------------------------------------------------------------------
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
 
 const ENGINE_DIR = join(__dirname, "..", "src", "engine");
 
@@ -228,28 +232,164 @@ function checkPureFunction(): number {
 }
 
 // ---------------------------------------------------------------------------
-// 5. A/B test case info
+// 5. A/B runtime test — actually runs generateSkill()
 // ---------------------------------------------------------------------------
 
-function printABTestInfo(): void {
-  console.log("\n5. A/B test case verification");
-  println("INFO", 'A/B runtime test requires the project to be built first. Run: npx tsx scripts/verify-engine.ts && npm run build && npx vite preview');
+async function runABTest(): Promise<number> {
+  console.log("\n5. A/B runtime verification");
+
+  const skillGenPath = join(ENGINE_DIR, "skillGenerator.ts");
+  if (!existsSync(skillGenPath)) {
+    println("SKIP", "skillGenerator.ts not found — cannot run A/B test");
+    return 0;
+  }
+
+  try {
+    // Use file:// URL for Windows ESM compatibility
+    const importPath =
+      "file://" + join(__dirname, "..", "src", "engine", "skillGenerator.ts");
+    const { generateSkill } = await import(importPath);
+
+    const SEED = "verify-a1";
+    const resultA = generateSkill({
+      runeIds: ["fire", "frost", "lightning", "wind"],
+      seed: SEED + "-a",
+    });
+    const resultB = generateSkill({
+      runeIds: ["wind", "lightning", "frost", "fire"],
+      seed: SEED + "-b",
+    });
+
+    console.log("\n  A: fire → frost → lightning → wind");
+    console.log(`    名称: ${resultA.name}`);
+    console.log(
+      `    标签: ${resultA.tags.slice(0, 6).join(", ") || "(无)"}`,
+    );
+    console.log(
+      `    Top5: ${resultA.topDims
+        .map((d) => `${d.dim}=${d.value.toFixed(3)}`)
+        .join(", ")}`,
+    );
+
+    console.log("\n  B: wind → lightning → frost → fire");
+    console.log(`    名称: ${resultB.name}`);
+    console.log(
+      `    标签: ${resultB.tags.slice(0, 6).join(", ") || "(无)"}`,
+    );
+    console.log(
+      `    Top5: ${resultB.topDims
+        .map((d) => `${d.dim}=${d.value.toFixed(3)}`)
+        .join(", ")}`,
+    );
+
+    let failures = 0;
+
+    // 验收 1: 名称不同
+    if (resultA.name !== resultB.name) {
+      println("PASS", "技能名称不同");
+    } else {
+      println("FAIL", `技能名称相同: ${resultA.name}`);
+      failures++;
+    }
+
+    // 验收 2: 标签至少 2 个不同
+    const diffTags =
+      resultA.tags.filter((t) => !resultB.tags.includes(t)).length +
+      resultB.tags.filter((t) => !resultA.tags.includes(t)).length;
+    if (diffTags >= 2) {
+      println("PASS", `标签差异 ≥ 2（实际: ${diffTags}）`);
+    } else {
+      println("FAIL", `标签差异不足（实际: ${diffTags}，需要 ≥ 2）`);
+      failures++;
+    }
+
+    // 验收 3: Top5 维度至少有 3 项排序不同或数值差异明显
+    const dimDiffs = resultA.topDims.filter(
+      (d, i) => d.dim !== resultB.topDims[i]?.dim,
+    ).length;
+    const valueDiffs = resultA.topDims.filter((d, i) => {
+      const b = resultB.topDims[i];
+      return b && Math.abs(d.value - b.value) > 0.05;
+    }).length;
+    if (dimDiffs >= 3 || valueDiffs >= 3) {
+      println(
+        "PASS",
+        `Top5 差异足够（排序差异: ${dimDiffs}, 数值差异: ${valueDiffs}）`,
+      );
+    } else {
+      println(
+        "FAIL",
+        `Top5 差异不足（排序差异: ${dimDiffs}, 数值差异: ${valueDiffs}）`,
+      );
+      failures++;
+    }
+
+    // 验收 4: 关键参数差异 ≥ 2（阈值 3 反映 0-100 尺度上的实质差异）
+    const paramDiff = ["rangePower", "controlPower", "burstPower"].filter((k) => {
+      const key = k as keyof typeof resultA.params;
+      return Math.abs((resultA.params[key] as number) - (resultB.params[key] as number)) > 3;
+    }).length;
+    if (paramDiff >= 2) {
+      println("PASS", `关键参数差异 ≥ 2（实际: ${paramDiff}）`);
+    } else {
+      println("FAIL", `关键参数差异不足（实际: ${paramDiff}，需要 ≥ 2）`);
+      failures++;
+    }
+
+    // 验收 5: trace 可读
+    if (
+      resultA.trace.positionedVectors.length === 4 &&
+      resultA.trace.interactionScores.length === 4 &&
+      resultA.trace.attentionWeights.length === 4 &&
+      resultA.trace.decodeReasons.length > 0
+    ) {
+      println("PASS", "trace 可读");
+    } else {
+      println("FAIL", "trace 不完整");
+      failures++;
+    }
+
+    // 验收 6: 动画参数不同
+    if (
+      resultA.animationParams.primaryColor !==
+      resultB.animationParams.primaryColor
+    ) {
+      println("PASS", "动画主色调不同");
+    } else {
+      println("FAIL", "动画主色调相同");
+      failures++;
+    }
+
+    if (resultA.resonance) {
+      println("INFO", `A 触发特殊共鸣: ${resultA.resonance.label}`);
+    }
+    if (resultB.resonance) {
+      println("INFO", `B 触发特殊共鸣: ${resultB.resonance.label}`);
+    }
+
+    return failures;
+  } catch (err) {
+    println("FAIL", `A/B runtime test error: ${String(err)}`);
+    return 1;
+  }
 }
 
 // ---------------------------------------------------------------------------
 // Main
 // ---------------------------------------------------------------------------
 
-function main(): void {
+async function main(): Promise<void> {
   console.log("=== Engine Verification ===");
 
-  const failures =
+  const staticFailures =
     checkEngineStructure() +
     checkAntiLookup() +
     checkBackendCalls() +
     checkPureFunction();
 
-  printABTestInfo();
+  const abFailures = await runABTest();
+
+  const failures = staticFailures + abFailures;
 
   console.log(`\n=== Verification Complete: ${failures} failure(s) ===`);
   console.log(failures === 0 ? "All checks passed." : "Some checks failed.");

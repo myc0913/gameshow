@@ -1,11 +1,15 @@
-/** 基础元素类型 */
-export type RuneElement = 'fire' | 'frost' | 'lightning' | 'wind';
+/** 符文 ID — MVP 固定 6 种 */
+export type RuneId = 'fire' | 'frost' | 'lightning' | 'stone' | 'shadow' | 'wind';
 
-/** 单个符文 */
-export interface Rune {
-  id: string;
+/** 单个符文定义 */
+export type Rune = {
+  id: RuneId;
   name: string;
-  element: RuneElement;
-  /** 语义向量各维度值，A1 阶段填充 */
+  shortName: string;
+  color: string;
+  secondaryColor: string;
+  tendency: string;
+  intuition: string;
+  /** 16 维语义向量，索引对应 VECTOR_DIMS 顺序 */
   vector: number[];
-}
+};
