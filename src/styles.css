@@ -1,0 +1,187 @@
+/* src/styles.css */
+
+/* === Reset & Base === */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+:root {
+  --color-bg: #0f0f14;
+  --color-surface: #1a1a24;
+  --color-border: #2a2a3a;
+  --color-text: #e0e0e0;
+  --color-text-dim: #8888a0;
+  --color-accent: #c084fc;
+  --color-accent-glow: #a855f7;
+  --radius: 8px;
+  --gap: 16px;
+}
+
+html, body, #root {
+  height: 100%;
+  width: 100%;
+}
+
+body {
+  font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+  background: var(--color-bg);
+  color: var(--color-text);
+  line-height: 1.5;
+}
+
+/* === Layout === */
+.app-shell {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: var(--gap);
+}
+
+.page-content {
+  flex: 1;
+  overflow-y: auto;
+}
+
+/* === Play Page: 左右分栏 === */
+.play-layout {
+  display: flex;
+  gap: var(--gap);
+  height: 100%;
+}
+
+.play-left {
+  flex: 2;
+  display: flex;
+  flex-direction: column;
+  gap: var(--gap);
+  min-width: 0;
+}
+
+.play-right {
+  flex: 3;
+  display: flex;
+  flex-direction: column;
+  gap: var(--gap);
+  min-width: 0;
+}
+
+/* === 面板通用 === */
+.panel {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius);
+  padding: var(--gap);
+}
+
+.panel-title {
+  font-size: 0.85rem;
+  color: var(--color-text-dim);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-bottom: 8px;
+}
+
+/* === 占位区 === */
+.placeholder-area {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--color-surface);
+  border: 1px dashed var(--color-border);
+  border-radius: var(--radius);
+  color: var(--color-text-dim);
+  font-size: 0.9rem;
+  min-height: 80px;
+}
+
+.placeholder-area.placeholder-runes {
+  min-height: 120px;
+}
+
+.placeholder-area.placeholder-canvas {
+  min-height: 240px;
+  flex: 1;
+}
+
+/* === 槽位栏 === */
+.slot-bar {
+  display: flex;
+  gap: 8px;
+}
+
+.slot {
+  flex: 1;
+  aspect-ratio: 1;
+  max-width: 64px;
+  background: var(--color-surface);
+  border: 1px dashed var(--color-border);
+  border-radius: var(--radius);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--color-text-dim);
+  font-size: 0.75rem;
+}
+
+/* === 铭刻按钮 === */
+.btn-engrave {
+  background: var(--color-accent);
+  color: #fff;
+  border: none;
+  border-radius: var(--radius);
+  padding: 10px 24px;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.btn-engrave:hover {
+  background: var(--color-accent-glow);
+}
+
+.btn-engrave:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+/* === Tab 导航 === */
+.tab-nav {
+  display: flex;
+  gap: 4px;
+  margin-bottom: var(--gap);
+  border-bottom: 1px solid var(--color-border);
+  padding-bottom: 0;
+}
+
+.tab-btn {
+  background: none;
+  border: none;
+  color: var(--color-text-dim);
+  padding: 8px 20px;
+  font-size: 0.95rem;
+  cursor: pointer;
+  border-bottom: 2px solid transparent;
+  transition: color 0.2s, border-color 0.2s;
+}
+
+.tab-btn:hover {
+  color: var(--color-text);
+}
+
+.tab-btn.active {
+  color: var(--color-accent);
+  border-bottom-color: var(--color-accent);
+}
+
+/* === 响应式 === */
+@media (max-width: 768px) {
+  .play-layout {
+    flex-direction: column;
+  }
+}
