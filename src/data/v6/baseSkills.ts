@@ -367,3 +367,8 @@ export function getBaseSkill(id: string): BaseSkillDefinition {
 export function getBaseSkillsByElement(el: ElementKey): BaseSkillDefinition[] {
   return BASE_SKILLS.filter((s) => s.element === el);
 }
+
+// ---- 模块加载时自校验 ----
+
+import { validateBaseSkills } from '../../engine/v6/validation.ts';
+validateBaseSkills(BASE_SKILLS);

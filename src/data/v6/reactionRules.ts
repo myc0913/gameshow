@@ -303,3 +303,8 @@ export function getDirectedReaction(
   if (!rule) throw new Error(`Missing reaction rule: ${key}`);
   return rule;
 }
+
+// ---- 模块加载时自校验 ----
+
+import { validateDirectedReactionRules } from '../../engine/v6/validation.ts';
+validateDirectedReactionRules(DIRECTED_REACTIONS);
