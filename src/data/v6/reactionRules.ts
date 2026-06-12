@@ -3,7 +3,7 @@
 // 依据: docs/v6/element-reactions.md §4-§9
 // ============================================================
 
-import type { DirectedReactionRule, ReactionPackage } from '../../types/v6.ts';
+import type { DirectedReactionRule, ReactionPackage, ElementKey } from '../../types/v6.ts';
 
 // ---- 辅助: 创建反应包 ----
 
@@ -295,8 +295,8 @@ for (const r of DIRECTED_REACTIONS) {
 }
 
 export function getDirectedReaction(
-  source: import('../../types/v6.ts').ElementKey,
-  target: import('../../types/v6.ts').ElementKey,
+  source: ElementKey,
+  target: ElementKey,
 ): DirectedReactionRule {
   const key = `${source}->${target}`;
   const rule = reactionMap.get(key);
