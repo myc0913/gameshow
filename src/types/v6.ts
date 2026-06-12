@@ -340,10 +340,21 @@ export type GeneratedBuild = {
   trace: BuildTrace;
 };
 
-// ---- 构筑差异 ----
+// ---- 构筑差异 (A/B 对比与 diffBuilds 使用) ----
 
-export type SkillOccurrenceKey = string; // `${seedId}#${occurrenceIndex}`
+/**
+ * 技能出现键，用于跨构筑追踪同一 seed。
+ * 格式: `${seedId}#${occurrenceIndex}`
+ * occurrenceIndex 从 0 开始，处理重复 seed 时按出现顺序编号。
+ * 例如输入 [fire_flow, frost_zone, fire_flow] 中，
+ * 第一个 fire_flow 的 key 为 "fire_flow#0"，第二个为 "fire_flow#1"。
+ */
+export type SkillOccurrenceKey = string;
 
+/**
+ * 单个技能在两个构筑间的差异。
+ * 由 diffBuilds() 纯函数生成，用于 Play 页的变化账本和 A/B 对比视图。
+ */
 export type SkillDiff = {
   occurrenceKey: SkillOccurrenceKey;
   seedId: string;
