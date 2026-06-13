@@ -11,10 +11,8 @@ import type {
   StatKey,
   MechanicKey,
   ElementKey,
-  ElementAccent,
   NormalizedStats,
   MechanicState,
-  VisualCueKey,
 } from '../../types/v6.ts';
 import { STAT_KEYS, MECHANIC_KEYS } from '../../types/v6.ts';
 import { getBaseSkill } from '../../data/v6/baseSkills.ts';
@@ -148,7 +146,6 @@ export function generateSkillName(
   baseName: string,
   contributions: ContributionTrace[],
   targetSlot: number,
-  targetElement: ElementKey,
 ): string {
   const domFwd = findDominantForward(contributions, targetSlot);
   const domBwd = findDominantBackward(contributions, targetSlot);
@@ -296,12 +293,11 @@ export function generateDescription(
   coreEffect: string,
   contributions: ContributionTrace[],
   targetSlot: number,
-  targetElement: ElementKey,
 ): string {
   const parts: string[] = [coreEffect + '。'];
 
   // 前向主反应描述
-  const fwdSentence = buildForwardSentence(contributions, targetSlot, targetElement);
+  const fwdSentence = buildForwardSentence(contributions, targetSlot);
   if (fwdSentence) parts.push(fwdSentence);
 
   // 后向联合修饰描述
@@ -319,7 +315,6 @@ export function generateDescription(
 function buildForwardSentence(
   contributions: ContributionTrace[],
   targetSlot: number,
-  targetElement: ElementKey,
 ): string | null {
   const domFwd = findDominantForward(contributions, targetSlot);
   if (!domFwd) return null;
@@ -564,7 +559,6 @@ export function finalizeGeneratedSkill(
     baseDef.name,
     contributions,
     targetSlot,
-    snapshot.primaryElement,
   );
 
   const domFwd = findDominantForward(contributions, targetSlot);
@@ -581,7 +575,6 @@ export function finalizeGeneratedSkill(
     snapshot.coreEffect,
     contributions,
     targetSlot,
-    snapshot.primaryElement,
   );
 
   const changes = buildChangeSummaries(

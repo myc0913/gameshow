@@ -7,10 +7,10 @@ interface TabNavProps {
   onTabChange: (tab: TabId) => void;
 }
 
-const tabs: { id: TabId; label: string }[] = [
-  { id: 'play', label: 'Play' },
-  { id: 'how', label: 'How' },
-  { id: 'why', label: 'Why' },
+const tabs: { id: TabId; label: string; cn: string }[] = [
+  { id: 'play', label: 'PLAY', cn: '构筑' },
+  { id: 'how', label: 'HOW', cn: '推演' },
+  { id: 'why', label: 'WHY', cn: '理念' },
 ];
 
 export function TabNav({ activeTab, onTabChange }: TabNavProps) {
@@ -22,7 +22,8 @@ export function TabNav({ activeTab, onTabChange }: TabNavProps) {
           className={`tab-btn${activeTab === tab.id ? ' active' : ''}`}
           onClick={() => onTabChange(tab.id)}
         >
-          {tab.label}
+          <span>{tab.label}</span>
+          <small>{tab.cn}</small>
         </button>
       ))}
     </nav>

@@ -22,3 +22,9 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+# Temp / build artifacts
+tmp/
+
+# Superpowers session state
+.superpowers/brainstorm/*/state/

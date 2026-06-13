@@ -13,6 +13,7 @@ import {
 } from '../engine/v6/finalizeGeneratedSkill.ts';
 import { getMechanicValue } from '../engine/v6/math.ts';
 import { ELEMENT_COLORS } from '../data/vectorDims.ts';
+import { VISUAL_CUE_LABELS } from '../data/v6/namingLexicon.ts';
 
 interface V6SkillCardProps {
   skill: GeneratedSkill;
@@ -50,6 +51,24 @@ export function V6SkillCard({
     .sort((a, b) => b.value - a.value)
     .slice(0, 2);
 
+  const mechanicChanges = MECHANIC_KEYS
+    .map((key) => {
+      const base = getMechanicValue(skill.baseMechanics, key);
+      const final = getMechanicValue(skill.finalMechanics, key);
+      return { key, base, final, delta: final - base };
+    })
+    .filter((item) => Math.abs(item.delta) >= 0.02)
+    .sort((a, b) => Math.abs(b.delta) - Math.abs(a.delta));
+
+  const gainedMechanics = mechanicChanges.filter(
+    (item) => item.delta > 0 && item.base < 0.15 && item.final >= 0.15,
+  );
+  const weakenedMechanics = mechanicChanges.filter(
+    (item) => item.delta < -0.02 && item.base >= 0.15,
+  );
+  const hasMutualFeedback = skill.changes.length > 0 ||
+    Boolean(skill.animation.forwardCue || skill.animation.backwardCue);
+
   // Source summary
   const sourceSlots = new Set<number>();
   for (const c of contributions) {
@@ -74,7 +93,18 @@ export function V6SkillCard({
     <article
       className={`v6-skill-card ${isActive ? 'v6-skill-card--active' : ''} ${expanded ? 'v6-skill-card--expanded' : ''}`}
       style={{ '--skill-color': color } as React.CSSProperties}
+      role="button"
+      tabIndex={0}
+      aria-pressed={isActive}
+      aria-label={`预览技能 ${skill.generatedName}`}
       onClick={onSelect}
+      onKeyDown={(event) => {
+        if (event.target !== event.currentTarget) return;
+        if (event.key === 'Enter' || event.key === ' ') {
+          event.preventDefault();
+          onSelect();
+        }
+      }}
     >
       {/* === Collapsed content === */}
       <div className="v6-skill-card__header">
@@ -86,9 +116,46 @@ export function V6SkillCard({
         <span className="v6-skill-card__element">{ELEMENT_LABELS_V6[skill.primaryElement]}</span>
         <span className="v6-skill-card__separator">/</span>
         <span className="v6-skill-card__form">{FORM_LABELS[skill.form] ?? skill.form}</span>
-        <span className="v6-skill-card__separator">/</span>
-        <span className="v6-skill-card__core">{skill.coreEffect}</span>
       </p>
+
+      <div className="v6-skill-card__effect-summary">
+        <div className="v6-skill-card__effect-base">
+          <span>基础主效果保持</span>
+          <strong>{skill.coreEffect}</strong>
+        </div>
+        <p className="v6-skill-card__description">
+          {hasMutualFeedback
+            ? skill.description
+            : '当前没有其他技能位参与互馈，名称、机制和动画均保持基础状态。'}
+        </p>
+        {hasMutualFeedback && (
+          <div className="v6-skill-card__semantic-changes">
+            <span className="v6-skill-card__semantic-chip">
+              施放形态仍为 {FORM_LABELS[skill.form] ?? skill.form}
+            </span>
+            {gainedMechanics.slice(0, 2).map((item) => (
+              <span key={`gain-${item.key}`} className="v6-skill-card__semantic-chip semantic--gain">
+                新增机制：{MECHANIC_LABELS[item.key]}
+              </span>
+            ))}
+            {weakenedMechanics.slice(0, 2).map((item) => (
+              <span key={`loss-${item.key}`} className="v6-skill-card__semantic-chip semantic--loss">
+                弱化机制：{MECHANIC_LABELS[item.key]}
+              </span>
+            ))}
+            {skill.animation.forwardCue && (
+              <span className="v6-skill-card__semantic-chip semantic--visual">
+                前向动画：{VISUAL_CUE_LABELS[skill.animation.forwardCue.visualCue]}
+              </span>
+            )}
+            {skill.animation.backwardCue && (
+              <span className="v6-skill-card__semantic-chip semantic--visual">
+                后向余韵：{VISUAL_CUE_LABELS[skill.animation.backwardCue.visualCue]}
+              </span>
+            )}
+          </div>
+        )}
+      </div>
 
       {/* Top 3 changes */}
       {topChanges.length > 0 && (
@@ -250,13 +317,13 @@ export function V6SkillCard({
               {skill.animation.forwardCue && (
                 <span>
                   前向 Cue：{ELEMENT_LABELS_V6[skill.animation.forwardCue.sourceElement]} → {ELEMENT_LABELS_V6[skill.primaryElement]}
-                  「{skill.animation.forwardCue.visualCue}」
+                  「{VISUAL_CUE_LABELS[skill.animation.forwardCue.visualCue]}」
                 </span>
               )}
               {skill.animation.backwardCue && (
                 <span>
                   后向 Cue：{ELEMENT_LABELS_V6[skill.animation.backwardCue.sourceElement]} → {ELEMENT_LABELS_V6[skill.primaryElement]}
-                  「{skill.animation.backwardCue.visualCue}」
+                  「{VISUAL_CUE_LABELS[skill.animation.backwardCue.visualCue]}」
                 </span>
               )}
             </div>

@@ -41,6 +41,42 @@ export const CUE_PREFIX_MAP: Record<VisualCueKey, string> = {
   shadow_drift: '影行',
 };
 
+// ---- 动画 Cue 展示名 ----
+
+export const VISUAL_CUE_LABELS: Record<VisualCueKey, string> = {
+  same_element_resonance: '同源共鸣',
+  steam_melt: '蒸汽融化',
+  thermal_overload: '热能过载',
+  molten_fracture: '熔岩破裂',
+  hidden_ember: '潜伏余烬',
+  fire_spread: '火势扩散',
+  cold_suppression: '寒冷压制',
+  cold_drag: '冰冷拖拽',
+  frozen_reinforcement: '冻结加固',
+  frost_bind: '霜冻束缚',
+  ice_mist: '冰雾扩散',
+  ignition_surge: '引燃加速',
+  thermal_shatter: '热冲击破裂',
+  stone_shock_fracture: '雷击震裂',
+  shadow_reveal: '暗影显形',
+  storm_agitation: '风暴激化',
+  kiln_focus: '炉热聚焦',
+  ice_stone_composite: '冰岩复合',
+  grounding_block: '接地阻断',
+  shadow_seal: '暗影封印',
+  wind_break: '风压破势',
+  hidden_flame: '隐焰侵染',
+  black_ice: '黑冰侵蚀',
+  latent_lightning: '潜雷回响',
+  shadow_erosion: '暗影侵蚀',
+  hidden_turbulence: '潜流扰动',
+  wind_fan_flame: '风助火势',
+  snow_carry: '卷雪扩散',
+  storm_channel: '风雷导流',
+  dust_erosion: '风沙侵蚀',
+  shadow_drift: '影流漂移',
+};
+
 // ---- 后位余韵后缀 (来源元素 → 后缀) ----
 
 export const BACKWARD_SUFFIX_MAP: Record<ElementKey, string> = {

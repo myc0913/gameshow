@@ -1,0 +1,26 @@
+<h2>Play 页面布局方案</h2>
+<p class="subtitle">Play 页需要容纳：符文池（挑选符文）、符文槽位（排列顺序）、技能结果面板、动画区（Three.js 占位）</p>
+
+<div class="options">
+  <div class="option" data-choice="a" onclick="toggleSelect(this)">
+    <div class="letter">A</div>
+    <div class="content">
+      <h3>纵向线性流</h3>
+      <p>从上到下：符文池 → 槽位栏 → 结果面板 → 动画区。符合"选→排→看"的直觉流程，移动端友好。</p>
+    </div>
+  </div>
+  <div class="option" data-choice="b" onclick="toggleSelect(this)">
+    <div class="letter">B</div>
+    <div class="content">
+      <h3>左右分栏</h3>
+      <p>左侧：符文池 + 槽位栏（操作区），右侧：结果面板 + 动画区（展示区）。桌面端更充分利用横向空间。</p>
+    </div>
+  </div>
+  <div class="option" data-choice="c" onclick="toggleSelect(this)">
+    <div class="letter">C</div>
+    <div class="content">
+      <h3>三栏布局</h3>
+      <p>左：符文池，中：动画区（视觉焦点），右：槽位 + 结果。动画居中突出，适合桌面端展示。</p>
+    </div>
+  </div>
+</div>

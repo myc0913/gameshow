@@ -7,7 +7,7 @@
 ## 最高优先级规则
 
 1. **不要接入后端、数据库或外部 AI API。** 规则引擎在前端本地运行。
-2. **不要用完整排列查表生成技能。** 技能结果必须来自 `generateSkill()` 纯函数。
+2. **不要用完整排列查表生成技能。** 技能结果必须来自 `generateSkill()` / `generateBuildV6()` 纯函数。
 3. **核心规则必须放在 `src/engine/`，写成纯函数。** UI 只调用规则、展示结果。
 4. **每次生成必须输出 `trace`。** How 页读取 trace，不手写解释。
 5. **默认 A/B 对比案例：** A: fire→frost→lightning→wind, B: wind→lightning→frost→fire。二者必须明显不同。
@@ -19,6 +19,8 @@
 | 开发阶段 | 加载文档 |
 |---------|---------|
 | 所有阶段 | `docs/CONSTITUTION.md` |
+| V6 引擎/Play/How/动画演进 | + `docs/v6/README.md` 及其四份设计文档（与旧合同冲突时以 V6 设计包为准） |
+| V6 背景与设计结论 | + `docs/contracts/asymmetric-mutual-feedback.md` |
 | A0 | + `docs/phases/A0-project-skeleton.md` |
 | A1 | + `docs/contracts/data-structures.md` + `docs/contracts/engine-pipeline.md` + `docs/phases/A1-engine-core.md` |
 | A2 | + `docs/contracts/page-specs.md` + `docs/phases/A2-play-interaction.md` |

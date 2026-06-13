@@ -5,12 +5,11 @@ import type { GeneratedBuild } from '../types/v6.ts';
 import { diffBuilds } from '../engine/v6/diffBuilds.ts';
 import { STAT_LABELS, ELEMENT_LABELS_V6 } from '../engine/v6/finalizeGeneratedSkill.ts';
 import { ELEMENT_COLORS } from '../data/vectorDims.ts';
+import { VISUAL_CUE_LABELS } from '../data/v6/namingLexicon.ts';
 
 interface ComparePanelProps {
   buildA: GeneratedBuild | null;
   buildB: GeneratedBuild | null;
-  seedIdsA: string[];
-  seedIdsB: string[];
   onClear: (slot: 'A' | 'B') => void;
   onReplay: (slot: 'A' | 'B') => void;
 }
@@ -18,12 +17,9 @@ interface ComparePanelProps {
 export function ComparePanel({
   buildA,
   buildB,
-  seedIdsA,
-  seedIdsB,
   onClear,
   onReplay,
 }: ComparePanelProps) {
-  const bothPresent = Boolean(buildA && buildB);
   const diffs = buildA && buildB ? diffBuilds(buildA, buildB) : null;
 
   return (
@@ -49,14 +45,12 @@ export function ComparePanel({
           <BuildRow
             slot="A"
             build={buildA}
-            seedIds={seedIdsA}
             onClear={() => onClear('A')}
             onReplay={() => onReplay('A')}
           />
           <BuildRow
             slot="B"
             build={buildB}
-            seedIds={seedIdsB}
             onClear={() => onClear('B')}
             onReplay={() => onReplay('B')}
           />
@@ -73,7 +67,7 @@ export function ComparePanel({
             return (
               <div key={diff.occurrenceKey} className="compare-diff-item">
                 <div className="compare-diff-item__head">
-                  <strong>{diff.seedId}</strong>
+                  <strong>{diff.baseName}</strong>
                   <span>A: Slot {diff.slotA + 1}</span>
                   <span>B: Slot {diff.slotB + 1}</span>
                   {slotMoved && <em>移位</em>}
@@ -81,6 +75,11 @@ export function ComparePanel({
                     Σ|Δ| = {totalDelta.toFixed(2)}
                   </span>
                 </div>
+                {diff.generatedNameA !== diff.generatedNameB && (
+                  <div className="compare-diff-item__name">
+                    {diff.generatedNameA} → {diff.generatedNameB}
+                  </div>
+                )}
                 {diff.statDiffs.length > 0 && (
                   <div className="compare-diff-item__stats">
                     {diff.statDiffs.slice(0, 5).map((d) => {
@@ -96,8 +95,20 @@ export function ComparePanel({
                 )}
                 {(diff.forwardCueChanged || diff.backwardCueChanged) && (
                   <div className="compare-diff-item__cues">
-                    {diff.forwardCueChanged && <span>前向 Cue 变化</span>}
-                    {diff.backwardCueChanged && <span>后向 Cue 变化</span>}
+                    {diff.forwardCueChanged && (
+                      <span>
+                        前向动画：{diff.forwardCueA ? VISUAL_CUE_LABELS[diff.forwardCueA] : '无'}
+                        {' → '}
+                        {diff.forwardCueB ? VISUAL_CUE_LABELS[diff.forwardCueB] : '无'}
+                      </span>
+                    )}
+                    {diff.backwardCueChanged && (
+                      <span>
+                        后向余韵：{diff.backwardCueA ? VISUAL_CUE_LABELS[diff.backwardCueA] : '无'}
+                        {' → '}
+                        {diff.backwardCueB ? VISUAL_CUE_LABELS[diff.backwardCueB] : '无'}
+                      </span>
+                    )}
                   </div>
                 )}
               </div>
@@ -112,13 +123,11 @@ export function ComparePanel({
 function BuildRow({
   slot,
   build,
-  seedIds,
   onClear,
   onReplay,
 }: {
   slot: 'A' | 'B';
   build: GeneratedBuild | null;
-  seedIds: string[];
   onClear: () => void;
   onReplay: () => void;
 }) {

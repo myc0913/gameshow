@@ -1,21 +1,17 @@
 // src/pages/PlayPage.tsx
-// V6-3: V6 引擎驱动，双引擎并行，旧 BuildResult 保留供 How 兼容
+// V6-5: V6 引擎独占，旧引擎已退场，SkillScene 直接消费 AnimationSpec
 
 import { useState, useCallback, useEffect, useMemo } from 'react';
-import type { SkillSeed } from '../types/rune.ts';
-import type { BuildResult } from '../types/skill.ts';
 import type { GeneratedBuild } from '../types/v6.ts';
-import { generateBuild } from '../engine/skillGenerator.ts';
 import { generateBuildV6 } from '../engine/v6/generateBuildV6.ts';
 import { diffBuilds } from '../engine/v6/diffBuilds.ts';
-import { getSkillSeed, SKILL_SEEDS } from '../data/skillSeeds.ts';
+import { SKILL_SEEDS } from '../data/skillSeeds.ts';
 import { RunePool } from '../components/RunePool.tsx';
 import { RuneSlotBar } from '../components/RuneSlotBar.tsx';
 import { SkillResultPanel } from '../components/SkillResultPanel.tsx';
 import { ComparePanel } from '../components/ComparePanel.tsx';
 import { ChangeLedger } from '../components/ChangeLedger.tsx';
 import { SkillScene } from '../components/SkillScene.tsx';
-import type { AnimationParams } from '../types/skill.ts';
 
 const DEFAULT_COMPARE_A = [
   'fire_flow', 'frost_zone', 'lightning_mark', 'wind_impact',
@@ -25,11 +21,7 @@ const DEFAULT_COMPARE_B = [
 ];
 
 export interface PlayPageBuildState {
-  // Old (kept for How page compat)
-  currentBuild: BuildResult | null;
-  previousBuild: BuildResult | null;
-  currentSeeds: SkillSeed[];
-  // V6 new
+  seedIds: string[];
   v6Build: GeneratedBuild | null;
   v6PreviousBuild: GeneratedBuild | null;
 }
@@ -51,12 +43,9 @@ export function PlayPage({
       ? [...initialSeeds, ...Array(4 - initialSeeds.length).fill(null)]
       : [null, null, null, null],
   );
-  const [previousBuild, setPreviousBuild] = useState<BuildResult | null>(null);
   const [v6PreviousBuild, setV6PreviousBuild] = useState<GeneratedBuild | null>(null);
   const [compareA, setCompareA] = useState<GeneratedBuild | null>(null);
   const [compareB, setCompareB] = useState<GeneratedBuild | null>(null);
-  const [compareSeedsA, setCompareSeedsA] = useState<string[]>([]);
-  const [compareSeedsB, setCompareSeedsB] = useState<string[]>([]);
   const [compareSlot, setCompareSlot] = useState<'A' | 'B' | null>(null);
   const [activeSkillIndex, setActiveSkillIndex] = useState(0);
   const [previewBuild, setPreviewBuild] = useState<GeneratedBuild | null>(null);
@@ -80,52 +69,34 @@ export function PlayPage({
     }
   }, [filledSeedIds]);
 
-  // Old engine call (kept for compat)
-  const currentBuild = useMemo(() => {
-    if (filledSeedIds.length === 0) return null;
-    try {
-      return generateBuild({ seedIds: filledSeedIds });
-    } catch {
-      return null;
-    }
-  }, [filledSeedIds]);
-
   // V6 change ledger
   const changeDiffs = useMemo(() => {
     if (!v6PreviousBuild || !v6Build) return null;
     return diffBuilds(v6PreviousBuild, v6Build);
   }, [v6PreviousBuild, v6Build]);
 
-  // Old seed objects (for App shared state compat)
-  const filledSeedsOld = useMemo(() => {
-    return filledSeedIds.map((id) => getSkillSeed(id)!).filter(Boolean);
-  }, [filledSeedIds]);
-
   // Notify parent of build changes
   useEffect(() => {
     if (onBuildChange) {
       onBuildChange({
-        currentBuild,
-        previousBuild,
-        currentSeeds: filledSeedsOld,
+        seedIds: filledSeedIds,
         v6Build,
         v6PreviousBuild,
       });
     }
-  }, [currentBuild, previousBuild, filledSeedsOld, v6Build, v6PreviousBuild, onBuildChange]);
+  }, [filledSeedIds, v6Build, v6PreviousBuild, onBuildChange]);
 
   /** Add seed to first empty slot */
   const handleAddSeed = useCallback((seedId: string) => {
     const emptyIndex = slots.findIndex((slot) => slot === null);
     if (emptyIndex === -1) return;
 
-    setPreviousBuild(currentBuild);
     setV6PreviousBuild(v6Build);
     const next = [...slots];
     next[emptyIndex] = seedId;
     setSlots(next);
     setJustFilledIndex(emptyIndex);
-  }, [currentBuild, v6Build, slots]);
+  }, [v6Build, slots]);
 
   // Pulse animation after seed fill
   useEffect(() => {
@@ -136,7 +107,6 @@ export function PlayPage({
 
   /** Remove from slot */
   const handleRemoveRune = useCallback((index: number) => {
-    setPreviousBuild(currentBuild);
     setV6PreviousBuild(v6Build);
     setSlots((prev) => {
       const remaining = prev.filter((id, slotIndex) => slotIndex !== index && id !== null);
@@ -149,12 +119,11 @@ export function PlayPage({
     });
     setPreviewBuild(null);
     setJustFilledIndex(null);
-  }, [currentBuild, v6Build, filledCount]);
+  }, [v6Build, filledCount]);
 
   /** Drag reorder */
   const handleReorder = useCallback((fromIndex: number, toIndex: number) => {
     const targetIndex = Math.min(toIndex, Math.max(0, filledCount - 1));
-    setPreviousBuild(currentBuild);
     setV6PreviousBuild(v6Build);
     setSlots((prev) => {
       const compact = prev.filter(Boolean) as string[];
@@ -170,21 +139,19 @@ export function PlayPage({
       return active;
     });
     setPreviewBuild(null);
-  }, [currentBuild, v6Build, filledCount]);
+  }, [v6Build, filledCount]);
 
   /** Reset */
   const handleReset = useCallback(() => {
-    setPreviousBuild(currentBuild);
     setV6PreviousBuild(v6Build);
     setSlots([null, null, null, null]);
     setPreviewBuild(null);
     setActiveSkillIndex(0);
     setJustFilledIndex(null);
-  }, [currentBuild, v6Build]);
+  }, [v6Build]);
 
   /** Random fill */
   const handleRandomFill = useCallback(() => {
-    setPreviousBuild(currentBuild);
     setV6PreviousBuild(v6Build);
     const picked: string[] = [];
     const allIds = SKILL_SEEDS.map((s) => s.id);
@@ -195,7 +162,7 @@ export function PlayPage({
     setActiveSkillIndex(0);
     setPreviewBuild(null);
     setJustFilledIndex(3);
-  }, [currentBuild, v6Build]);
+  }, [v6Build]);
 
   /** Default compare example */
   const handleDefaultCompare = useCallback(() => {
@@ -204,45 +171,37 @@ export function PlayPage({
       const buildB = generateBuildV6({ seedIds: DEFAULT_COMPARE_B });
       setCompareA(buildA);
       setCompareB(buildB);
-      setCompareSeedsA(DEFAULT_COMPARE_A);
-      setCompareSeedsB(DEFAULT_COMPARE_B);
 
       if (slots.every((slot) => slot === null)) {
-        setPreviousBuild(currentBuild);
         setV6PreviousBuild(v6Build);
         setSlots([...DEFAULT_COMPARE_A]);
         setJustFilledIndex(3);
       }
     } catch { /* engine error — ignore */ }
-  }, [currentBuild, v6Build, slots]);
+  }, [v6Build, slots]);
 
   /** Save current build to compare */
   const handleSaveCompare = useCallback(() => {
     if (!v6Build) return;
     if (!compareA) {
       setCompareA(v6Build);
-      setCompareSeedsA([...filledSeedIds]);
       setCompareSlot('A');
     } else if (!compareB) {
       setCompareB(v6Build);
-      setCompareSeedsB([...filledSeedIds]);
       setCompareSlot('B');
     } else {
       setCompareA(v6Build);
-      setCompareSeedsA([...filledSeedIds]);
       setCompareSlot('A');
     }
-  }, [v6Build, compareA, compareB, filledSeedIds]);
+  }, [v6Build, compareA, compareB]);
 
   const handleClearCompare = useCallback(
     (slot: 'A' | 'B') => {
       if (slot === 'A') {
         setCompareA(null);
-        setCompareSeedsA([]);
         if (compareSlot === 'A') setCompareSlot(null);
       } else {
         setCompareB(null);
-        setCompareSeedsB([]);
         if (compareSlot === 'B') setCompareSlot(null);
       }
     },
@@ -267,30 +226,14 @@ export function PlayPage({
     setPreviewBuild(null);
   }, []);
 
-  // Animation params (simple mapping from V6 AnimationSpec)
+  // Animation spec — 直接传递 V6 AnimationSpec
   const displayedBuild = previewBuild ?? v6Build;
   const safeActiveSkillIndex = Math.min(
     activeSkillIndex,
     Math.max(0, (v6Build?.skills.length ?? 1) - 1),
   );
   const displayedSkill = displayedBuild?.skills[previewBuild ? previewSkillIndex : safeActiveSkillIndex] ?? null;
-  const currentAnimParams: AnimationParams | null = displayedSkill
-    ? {
-        primaryColor: displayedSkill.animation.primaryPalette?.[0] ?? '#ff6600',
-        secondaryColor: displayedSkill.animation.primaryPalette?.[1],
-        particleCount: displayedSkill.animation.geometry?.count ?? 20,
-        particleSpeed: displayedSkill.animation.timing?.travelSeconds
-          ? 1 / displayedSkill.animation.timing.travelSeconds
-          : 1.0,
-        radius: displayedSkill.animation.geometry?.radius ?? 1.5,
-        hasChain: (displayedSkill.animation.mechanics?.chain ?? 0) > 0,
-        hasGroundZone: displayedSkill.animation.form === 'zone',
-        hasDelayMark: displayedSkill.animation.form === 'mark',
-        hasBurst: (displayedSkill.animation.mechanics?.delayedBurst ?? 0) > 0,
-        hasKnockback: (displayedSkill.animation.mechanics?.knockback ?? 0) > 0,
-        hasBindRing: (displayedSkill.animation.mechanics?.bind ?? 0) > 0,
-      }
-    : null;
+  const currentAnimSpec = displayedSkill?.animation ?? null;
 
   return (
     <div className="page-content play-page">
@@ -339,7 +282,7 @@ export function PlayPage({
 
         <section className="combat-stage">
           <SkillScene
-            params={currentAnimParams}
+            spec={currentAnimSpec}
             autoPlay={!!displayedBuild}
             skillName={displayedSkill?.generatedName}
             skillIndex={previewBuild ? previewSkillIndex : safeActiveSkillIndex}
@@ -375,8 +318,6 @@ export function PlayPage({
       <ComparePanel
         buildA={compareA}
         buildB={compareB}
-        seedIdsA={compareSeedsA}
-        seedIdsB={compareSeedsB}
         onClear={handleClearCompare}
         onReplay={handleReplayAnimation}
       />

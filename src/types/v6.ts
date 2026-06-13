@@ -358,10 +358,17 @@ export type SkillOccurrenceKey = string;
 export type SkillDiff = {
   occurrenceKey: SkillOccurrenceKey;
   seedId: string;
+  baseName: string;
+  generatedNameA: string;
+  generatedNameB: string;
   slotA: number;
   slotB: number;
   statDiffs: Array<{ key: StatKey; valueA: number; valueB: number; delta: number }>;
   mechanicDiffs: Array<{ key: MechanicKey; valueA: number; valueB: number; delta: number }>;
+  forwardCueA?: VisualCueKey;
+  forwardCueB?: VisualCueKey;
+  backwardCueA?: VisualCueKey;
+  backwardCueB?: VisualCueKey;
   forwardCueChanged: boolean;
   backwardCueChanged: boolean;
 };

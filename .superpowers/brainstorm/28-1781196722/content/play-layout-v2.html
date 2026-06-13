@@ -1,0 +1,68 @@
+<h2>Play 页面布局方案</h2>
+<p class="subtitle">符文池 · 槽位栏 · 结果面板 · 动画区 — 四种元素三种摆法</p>
+
+<div class="options">
+  <div class="option" data-choice="a" onclick="toggleSelect(this)">
+    <div class="letter">A</div>
+    <div class="content">
+      <h3>纵向线性流</h3>
+      <p>从上到下依次排布，符合"选→排→看"直觉流程，移动端友好</p>
+      <div class="mockup" style="margin-top:12px">
+        <div class="mockup-header">布局 A — 纵向线性</div>
+        <div class="mockup-body">
+          <div class="placeholder" style="margin-bottom:8px">🎒 符文池（水平滚动卡片）</div>
+          <div class="placeholder" style="margin-bottom:8px">📥 符文槽位栏（4 槽位水平排列）</div>
+          <div class="placeholder" style="margin-bottom:8px">📋 技能结果面板（名称 + 标签 + 参数）</div>
+          <div class="placeholder" style="height:180px">🎬 技能动画区（Three.js Canvas 占位）</div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="option" data-choice="b" onclick="toggleSelect(this)">
+    <div class="letter">B</div>
+    <div class="content">
+      <h3>左右分栏</h3>
+      <p>左侧操作 + 右侧展示，桌面端充分利用横向空间</p>
+      <div class="mockup" style="margin-top:12px">
+        <div class="mockup-header">布局 B — 左右分栏</div>
+        <div class="mockup-body">
+          <div style="display:flex;gap:12px">
+            <div style="flex:1">
+              <div class="placeholder" style="margin-bottom:8px">🎒 符文池</div>
+              <div class="placeholder" style="margin-bottom:8px">📥 槽位栏</div>
+              <div class="placeholder" style="height:120px">⚙️ 铭刻按钮</div>
+            </div>
+            <div style="flex:1">
+              <div class="placeholder" style="margin-bottom:8px">📋 结果面板</div>
+              <div class="placeholder" style="height:200px">🎬 动画区</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="option" data-choice="c" onclick="toggleSelect(this)">
+    <div class="letter">C</div>
+    <div class="content">
+      <h3>三栏布局</h3>
+      <p>动画居中为视觉焦点，符文池在左、槽位+结果在右</p>
+      <div class="mockup" style="margin-top:12px">
+        <div class="mockup-header">布局 C — 三栏</div>
+        <div class="mockup-body">
+          <div style="display:flex;gap:12px">
+            <div style="flex:0.8">
+              <div class="placeholder" style="height:280px">🎒 符文池<br/><small>纵向列表</small></div>
+            </div>
+            <div style="flex:1.4">
+              <div class="placeholder" style="height:280px">🎬 技能动画区<br/><small>视觉焦点</small></div>
+            </div>
+            <div style="flex:0.8">
+              <div class="placeholder" style="margin-bottom:8px">📥 槽位栏</div>
+              <div class="placeholder" style="height:230px">📋 结果面板</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

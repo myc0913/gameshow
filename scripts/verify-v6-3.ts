@@ -130,16 +130,16 @@ const fireA = buildA.skills.find((s) => s.seedId === 'fire_flow');
 const fireB = buildB.skills.find((s) => s.seedId === 'fire_flow');
 if (fireA && fireB) {
   const fwdA = buildA.trace.contributions.filter(
-    (c) => c.sourceSlot === fireA.slot && c.pass === 'forward' && c.acceptedDelta !== 0,
+    (c) => c.targetSlot === fireA.slot && c.pass === 'forward' && c.acceptedDelta !== 0,
   );
   const bwdA = buildA.trace.contributions.filter(
-    (c) => c.sourceSlot === fireA.slot && c.pass === 'backward' && c.acceptedDelta !== 0,
+    (c) => c.targetSlot === fireA.slot && c.pass === 'backward' && c.acceptedDelta !== 0,
   );
   const fwdB = buildB.trace.contributions.filter(
-    (c) => c.sourceSlot === fireB.slot && c.pass === 'forward' && c.acceptedDelta !== 0,
+    (c) => c.targetSlot === fireB.slot && c.pass === 'forward' && c.acceptedDelta !== 0,
   );
   const bwdB = buildB.trace.contributions.filter(
-    (c) => c.sourceSlot === fireB.slot && c.pass === 'backward' && c.acceptedDelta !== 0,
+    (c) => c.targetSlot === fireB.slot && c.pass === 'backward' && c.acceptedDelta !== 0,
   );
   const roleA = fwdA.length > bwdA.length ? '前向为主' : bwdA.length > fwdA.length ? '后向为主' : '均衡';
   const roleB = fwdB.length > bwdB.length ? '前向为主' : bwdB.length > fwdB.length ? '后向为主' : '均衡';

@@ -97,6 +97,16 @@ export function RuneSlotBar({
               onDrop={(e) => handleDrop(e, i)}
               onDragEnd={handleDragEnd}
               onClick={() => seedId && onSelectSkill(i)}
+              role={seedId ? 'button' : undefined}
+              tabIndex={seedId ? 0 : undefined}
+              aria-pressed={seedId ? activeSkillIndex === i : undefined}
+              onKeyDown={(event) => {
+                if (event.target !== event.currentTarget) return;
+                if (seedId && (event.key === 'Enter' || event.key === ' ')) {
+                  event.preventDefault();
+                  onSelectSkill(i);
+                }
+              }}
               title={
                 base
                   ? `${base.name} — ${SLOT_LABELS[i]}（${SLOT_HINTS[i]}），点击预览，右上角移除`

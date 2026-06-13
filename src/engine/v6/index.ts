@@ -38,14 +38,12 @@ export {
 // V6-1: 前向计算
 export {
   computeForwardPass,
-  resetForwardTraceIds,
 } from './computeForwardPass.ts';
 export type { ForwardPassResult } from './computeForwardPass.ts';
 
 // V6-1: 后向计算
 export {
   computeBackwardPass,
-  resetBackwardTraceIds,
 } from './computeBackwardPass.ts';
 export type { BackwardPassResult } from './computeBackwardPass.ts';
 
