@@ -26,5 +26,14 @@ dist-ssr
 # Temp / build artifacts
 tmp/
 
-# Superpowers session state
-.superpowers/brainstorm/*/state/
+# Coding infrastructure
+.claude/
+.codex/
+.superpowers/
+AGENTS.md
+CLAUDE.md
+eslint.config.js
+
+# Design documents
+docs/
+scripts/
