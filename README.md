@@ -7,6 +7,7 @@
 [![Three.js](https://img.shields.io/badge/Three.js-latest-black)](https://threejs.org/)
 [![Vite](https://img.shields.io/badge/Vite-8-646cff)](https://vitejs.dev/)
 
+已部署网址:https://myc0913.github.io/gameshow/
 ---
 
 ## 一句话
