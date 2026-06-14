@@ -210,10 +210,10 @@ export function WhyPage() {
       </section>
 
       <section className="why-section">
-        <h2>与《漂流诸天》道痕系统的关系</h2>
+        <h2>与《铭途》道痕系统的关系</h2>
         <div className="why-drift">
           <p>
-            在构想中的游戏《漂流诸天》里，这套符文原型将被替换为
+            在构想中的游戏《铭途》里，这套符文原型将被替换为
             <strong>「道痕」</strong>—— 玩家在诸天世界中留下的因果印记。
           </p>
           <p>
@@ -230,7 +230,7 @@ export function WhyPage() {
             <h4>概念映射</h4>
             <table className="why-table">
               <thead>
-                <tr><th>Demo 概念</th><th>《漂流诸天》概念</th><th>设计意图</th></tr>
+                <tr><th>Demo 概念</th><th>《铭途》概念</th><th>设计意图</th></tr>
               </thead>
               <tbody>
                 <tr><td>技能种子</td><td>道痕</td><td>当前以固定身份表达，未来可扩展为经历留下的高维语义表征</td></tr>
